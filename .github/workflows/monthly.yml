@@ -1,11 +1,24 @@
 name: monthly-monitor
+
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "refresh = fetch external data; rebuild = reuse committed data"
+        required: true
+        default: refresh
+        type: choice
+        options:
+          - refresh
+          - rebuild
+
+permissions:
+  contents: write
+
 jobs:
-  monitor:
+  refresh-data:
+    if: inputs.mode == 'refresh'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -19,14 +32,28 @@ jobs:
           OPENALEX_MAILTO: ${{ secrets.OPENALEX_MAILTO }}
           GITHUB_TOKEN: ${{ github.token }}
         run: python -m commercial_monitor.cli --live --out data
+      - name: Commit refreshed data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f data/
+          git diff --cached --quiet || git commit -m "chore: refresh monitoring data"
+          git push
+
+  build-artifacts:
+    needs: refresh-data
+    if: always() && (needs.refresh-data.result == 'success' || inputs.mode == 'rebuild')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
       - name: Build paper PDF
         uses: xu-cheng/latex-action@v4
         with:
           root_file: paper/main.tex
-      - name: Commit generated artifacts
+      - name: Commit generated PDF
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -f data/ paper/main.pdf
-          git diff --cached --quiet || git commit -m "chore: refresh monitoring data and paper PDF"
+          git add -f paper/main.pdf
+          git diff --cached --quiet || git commit -m "chore: rebuild paper PDF"
           git push
