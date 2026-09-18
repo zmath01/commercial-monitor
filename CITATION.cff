@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "Commercial Monitor"
+message: "Please cite the repository and the accompanying methodology paper."
+type: software
+authors:
+  - name: "ZMath01 Research Project"
+repository-code: "https://github.com/zmath01/commercial-monitor"
+license: MIT
+version: "0.1.0"
+date-released: "2026-09-18"
