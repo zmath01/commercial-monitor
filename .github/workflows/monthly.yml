@@ -1,0 +1,34 @@
+name: monthly-monitor
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 1 * *"
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Deterministic smoke test
+        run: python -m commercial_monitor.cli --sample --out /tmp/sample-data
+      - name: Live monitor
+        env:
+          OPENALEX_MAILTO: ${{ secrets.OPENALEX_MAILTO }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m commercial_monitor.cli --live --out data
+      - name: Build paper PDF
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: paper/main.tex
+      - name: Commit generated artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/ paper/main.pdf
+          git diff --cached --quiet || git commit -m "chore: refresh monitoring data and paper PDF"
+          git push
