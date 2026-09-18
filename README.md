@@ -1,5 +1,7 @@
 # Commercial Monitor
 
+**Dashboard:** https://zmath01.github.io/commercial-monitor/
+
 Reproducible **research → technology → commercialization** monitoring and forecasting.
 
 The project is designed for commercially relevant technology signals rather than an exhaustive academic taxonomy. It separates research emergence, technology/adoption, IP translation, funding/labor/company outcomes, and market outcomes. It does not treat a composite signal as revenue, investment return, or a recommendation.
