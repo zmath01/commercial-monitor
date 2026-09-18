@@ -1,0 +1,97 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,hyperref,microtype}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\title{Commercial Monitor: A Reproducible Multi-Source Framework for\\Research-to-Technology-to-Commercialization Forecasting}
+\author{ZMath01 Research Project}
+\date{September 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+We present Commercial Monitor, a reproducible framework for studying whether scientific activity is followed by measurable technology adoption and commercialization-related outcomes. The design separates research emergence from downstream outcomes rather than treating publication growth as a proxy for commercial success. The initial taxonomy maps 32 arXiv categories to 14 research-backed monitoring domains and adds FinTech as a multi-source domain without a dedicated arXiv category. The runnable baseline combines publication signals with engineering and developer activity from public APIs, while adapters are planned for patent, funding, labor, company, and market datasets. Forecasts are evaluated with expanding-window temporal splits, probabilistic calibration, simple baselines, source-coverage diagnostics, and null experiments. Network measures such as effective conductance are retained as transparent graph baselines rather than assumed to measure commercialization. LLM assistance is constrained to semantic annotation and reporting; schemas, targets, evaluation boundaries, and scientific decisions remain human-controlled. This paper specifies the methodology and software architecture; it does not assert empirical performance before the live workflow is executed.
+\end{abstract}
+\section{Introduction}
+Technology forecasting can conflate scientific novelty, technical adoption, intellectual-property translation, and market success. These processes are related but occur on different clocks and are measured by different observables. A publication may be scientifically important without becoming a product; conversely, a commercially important technology may be poorly represented by publication volume.
+
+Commercial Monitor treats commercialization as a set of downstream outcomes. The primary forecasting object is
+\begin{equation}
+P(Y_k(t+h)=1\mid X_t),
+\end{equation}
+where $Y_k$ is a specified future outcome, $h$ is a fixed horizon, and $X_t$ contains only information observable by time $t$. This formulation makes temporal leakage a first-class concern.
+\section{Research Questions}
+\begin{enumerate}
+\item Do research-emergence signals precede measurable technology/adoption signals?
+\item Which combinations of research, engineering, IP, labor, funding, and company signals improve out-of-time prediction?
+\item Are graph-based emergence measures useful beyond simple growth and persistence baselines?
+\item Do results survive source-specific coverage controls and null-model tests?
+\end{enumerate}
+The project does not define a single commercial-value score and does not interpret model output as an investment-return forecast.
+\section{Taxonomy and Data}
+The core research taxonomy contains 32 arXiv categories mapped to 14 domains: AI/ML; applied mathematics; computer science; software engineering; security/cryptography; quantitative finance; quantum computing; quantum materials/electronics; complex systems; quantum simulation/ultracold matter; photonics/optics; computational science/engineering; emerging hardware/devices; and digital markets/mechanism design. FinTech is a fifteenth monitoring domain with no dedicated arXiv category.
+
+The distinction is important: taxonomy is not identical to live data sources. The initial implementation obtains research activity from OpenAlex and developer/community activity from GitHub and Stack Overflow. An arXiv adapter and downstream outcome schemas are provided as extension points rather than fabricated data.
+\begin{table}[h]
+\centering
+\caption{Outcome hierarchy.}
+\begin{tabular}{p{0.22\linewidth}p{0.62\linewidth}}
+\toprule
+Layer & Observable outcome \\
+\midrule
+Research & future publication/concept emergence \\
+Technology & repository, package, model, benchmark or developer adoption \\
+IP & science-to-patent linkage and patent-family activity \\
+Capital & grants and financing activity where reproducible \\
+Labor & job-posting demand \\
+Companies & company/startup formation \\
+Market & procurement, licensing, product adoption or revenue proxies \\
+\bottomrule
+\end{tabular}
+\end{table}
+\section{Signals}
+For a non-negative count series $x_t$, growth indicators include year-over-year change and multi-year CAGR. Z-scores provide within-field standardization. Burst detection follows the two-state Poisson formulation of Kleinberg. A composite baseline is
+\begin{equation}
+S_{f,t}=\frac{\sum_j w_j\tilde{x}_{f,t,j}}{\sum_j w_j},
+\end{equation}
+where $\tilde{x}$ is a within-field normalized signal. Thus the index measures position relative to a field's own history, not comparable absolute market size.
+\section{Networks}
+Two graph families are distinguished. A future extension constructs concept co-occurrence graphs from documents. The current lightweight baseline constructs a field graph from correlations between field-level growth profiles. It is therefore explicitly named a growth-correlation graph, not a topic-cooccurrence graph.
+
+For comparison with network-science baselines, the code implements a two-hop effective-conductance quantity:
+\begin{equation}
+G_{ab}=\sum_{v\in N(a)\cap N(b)}\frac{w_{av}w_{vb}}{w_{av}+w_{vb}}.
+\end{equation}
+For a full weighted graph, effective resistance is
+\begin{equation}
+R_{\mathrm{eff}}(i,j)=L^+_{ii}+L^+_{jj}-2L^+_{ij},
+\end{equation}
+with conductance $1/R_{\mathrm{eff}}$. These are network descriptors, not commercialization measures.
+\section{Prediction and Evaluation}
+Features include research growth, technology growth, community activity, burst states, current signal level, slope, and graph features. Logistic regression is trained in an expanding window. For test year $t$, only observations with year $<t$ are eligible for training. We report ROC-AUC when both test classes are present, average precision, and Brier score.
+
+Simple baselines include a training-set class prior and graph-only specifications. Null experiments permute labels within pre-defined temporal blocks. The design favors ex-ante temporal evaluation over random splits because commercialization signals can have long and asynchronous lags.
+\section{Science-to-Invention Translation}
+The principal planned extension is explicit patent-paper linkage. Patent citations to scientific literature provide an observable of science-to-invention knowledge flow, although they are not equivalent to commercialization. A future implementation will preserve patent legal status, family structure, citation lag, and paper metadata as separate variables and predict future linkage using only information available before the patent event.
+\section{Human-Controlled Agent Boundary}
+LLMs can reduce the cost of semantic normalization, entity resolution, taxonomy suggestions, and report drafting. They should not define targets after seeing outcomes, select a winning model after observing test results, delete observations, or decide statistical significance. Operationally,
+\[
+\text{LLM}=\text{assistant}\neq\text{scientific authority}.
+\]
+Human-defined schemas, deterministic transformations, evaluation splits, and published metrics remain authoritative.
+\section{Software Architecture and Reproducibility}
+The repository uses Python, pandas/numpy/scipy/scikit-learn, NetworkX, YAML, pytest, and GitHub Actions. The initial portable artifact is CSV; Parquet/DuckDB can be introduced when volume warrants them. A deterministic sample mode separates software correctness from network availability. The monthly workflow is manually runnable by the maintainer and records provenance before production use.
+\section{Limitations}
+Open bibliographic data have field and coverage biases. GitHub and Stack Overflow disproportionately represent software and English-speaking developer communities; they are poor universal measures for experimental physics or materials science. OpenAlex topic assignment is imperfect. API revisions and rate limits affect reproducibility. Patent, funding, labor, company, procurement, and revenue data have different licensing constraints and temporal delays.
+
+Association between research activity and downstream adoption does not establish causal commercialization impact. The framework is intended for transparent forecasting and evidence aggregation, not causal claims or investment advice.
+\section{Relationship to Prior Approaches}
+The project is related to scientific trend forecasting, technology forecasting, patent-based emerging-technology detection, and network-based concept emergence. Its distinction is the outcome layer: it asks whether research signals predict independently observed downstream technology and commercialization outcomes. Concept-network reproduction can therefore serve as a benchmark without being the core commercial metric.
+\section{Expected Empirical Tests}
+The first empirical release should report source coverage by field and year; out-of-time performance against persistence and graph-only baselines; calibration; ablations for research, technology, community and graph features; permutation/null results; sensitivity to taxonomy boundaries and source availability; and paper--patent lag distributions when patent data are available. No performance number is asserted here before those experiments are executed.
+\section{Conclusion}
+Commercial Monitor provides a KISS, reproducible architecture for moving from research-trend detection toward empirically testable commercialization forecasting. Its central commitment is separation: research from adoption, proxies from outcomes, graph descriptors from commercial claims, and model fitting from future information.
+\begin{thebibliography}{9}
+\bibitem{kleinberg2003} J. Kleinberg. Bursty and hierarchical structure in streams. \emph{Data Mining and Knowledge Discovery}, 7:373--397, 2003.
+\bibitem{robertson2020} P. Robertson et al. Topic modeling and technology forecasting for assessing the commercial viability of healthcare innovations. \emph{Technological Forecasting and Social Change}, 153, 2020.
+\end{thebibliography}
+\end{document}
