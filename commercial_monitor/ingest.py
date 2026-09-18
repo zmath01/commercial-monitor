@@ -6,6 +6,13 @@ import requests
 
 UA = "commercial-monitor/0.1 research reproducibility"
 
+# GitHub's REST search API has a much tighter limit than the general REST API.
+# Keep search requests serial and below 30 requests/minute, and honor rate-limit
+# responses instead of hammering the endpoint.
+_GITHUB_SEARCH_MIN_INTERVAL = 2.1
+_last_github_search = 0.0
+
+
 def _get(url, params=None, headers=None):
     h = {"User-Agent": UA}
     if headers:
@@ -13,6 +20,52 @@ def _get(url, params=None, headers=None):
     r = requests.get(url, params=params, headers=h, timeout=30)
     r.raise_for_status()
     return r.json()
+
+
+def _get_github_search(url, params, headers):
+    global _last_github_search
+
+    for attempt in range(5):
+        wait = _GITHUB_SEARCH_MIN_INTERVAL - (time.monotonic() - _last_github_search)
+        if wait > 0:
+            time.sleep(wait)
+
+        r = requests.get(url, params=params, headers=headers, timeout=30)
+        _last_github_search = time.monotonic()
+
+        if r.status_code not in (403, 429):
+            r.raise_for_status()
+            return r.json()
+
+        body = r.text.lower()
+        remaining = r.headers.get("X-RateLimit-Remaining")
+        retry_after = r.headers.get("Retry-After")
+        reset = r.headers.get("X-RateLimit-Reset")
+
+        # GitHub can return 403 for either primary/secondary rate limiting.
+        # Retry only when the response looks like a rate-limit response.
+        rate_limited = (
+            r.status_code == 429
+            or remaining == "0"
+            or "rate limit" in body
+            or "secondary rate limit" in body
+        )
+        if not rate_limited:
+            r.raise_for_status()
+
+        if retry_after:
+            delay = float(retry_after)
+        elif remaining == "0" and reset:
+            delay = max(1.0, float(reset) - time.time())
+        else:
+            # GitHub recommends backing off for secondary limits.
+            delay = min(60.0 * (2 ** attempt), 300.0)
+
+        time.sleep(delay)
+
+    r.raise_for_status()
+    return r.json()
+
 
 def fetch_openalex(query, start_year, end_year, cfg):
     params = {
@@ -30,18 +83,27 @@ def fetch_openalex(query, start_year, end_year, cfg):
         for x in data.get("group_by", [])
     ])
 
+
 def fetch_github(keyword, start_year, end_year, cfg):
     token = os.getenv(cfg["sources"]["github"].get("token_env", "GITHUB_TOKEN"))
-    headers = {"Accept": "application/vnd.github+json"}
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2026-03-10",
+    }
     if token:
         headers["Authorization"] = f"Bearer {token}"
+
     rows = []
     for year in range(start_year, end_year + 1):
         q = f"topic:{keyword} created:{year}-01-01..{year}-12-31"
-        data = _get(cfg["sources"]["github"]["base_url"], {"q": q, "per_page": 1}, headers)
+        data = _get_github_search(
+            cfg["sources"]["github"]["base_url"],
+            {"q": q, "per_page": 1},
+            headers,
+        )
         rows.append({"year": year, "repos": int(data.get("total_count", 0))})
-        time.sleep(0.2)
     return pd.DataFrame(rows)
+
 
 def fetch_stackoverflow(tag, start_year, end_year, cfg):
     rows = []
@@ -58,6 +120,7 @@ def fetch_stackoverflow(tag, start_year, end_year, cfg):
         time.sleep(0.2)
     return pd.DataFrame(rows)
 
+
 def make_sample_panel(fields, years):
     rows = []
     for fi, field in enumerate(fields):
@@ -70,6 +133,7 @@ def make_sample_panel(fields, years):
                 "questions": 20 + yi*(1 + fi % 2),
             })
     return pd.DataFrame(rows)
+
 
 def fetch_live_panel(cfg):
     start, end = cfg["project"]["start_year"], cfg["project"]["end_year"]
