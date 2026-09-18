@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Commercial Monitor — Research → Technology → Commercialization</title>
+<style>
+:root{color-scheme:light dark;--bg:#fff;--fg:#17202a;--muted:#667085;--card:#f6f8fa;--border:#d0d7de;--accent:#0969da}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1117;--fg:#e6edf3;--muted:#8b949e;--card:#161b22;--border:#30363d;--accent:#58a6ff}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1180px;margin:0 auto;padding:42px 22px 70px}a{color:var(--accent)}h1{font-size:34px;margin:0 0 8px}h2{margin-top:34px}.muted{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:24px 0}.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}.value{font-size:26px;font-weight:650}.label{color:var(--muted);font-size:13px}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}th,td{padding:9px 10px;border-bottom:1px solid var(--border);text-align:left}th{color:var(--muted);font-weight:600}
+.notice{padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:var(--card)}code{font-family:ui-monospace,SFMono-Regular,monospace}
+.bar{display:flex;align-items:center;gap:10px;margin:7px 0}.bar span:first-child{width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.track{height:9px;flex:1;background:var(--card);border:1px solid var(--border);border-radius:99px;overflow:hidden}.fill{height:100%;background:var(--accent)}
+footer{margin-top:45px;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body><main>
+<h1>Commercial Monitor</h1>
+<p class="muted">Reproducible research → technology → commercialization monitoring and forecasting.</p>
+<p><a href="https://github.com/zmath01/commercial-monitor">Source repository</a> · <span id="updated">Loading…</span></p>
+
+<div id="status" class="notice">Loading published monitoring data…</div>
+<section id="summary" class="grid"></section>
+<section><h2>Research / technology panel</h2><div id="panel"></div></section>
+<section><h2>Walk-forward evaluation</h2><div id="evaluation"></div></section>
+<section><h2>Interpretation</h2>
+<p>This dashboard reports the committed outputs of the reproducible pipeline. It does <strong>not</strong> treat a composite signal as revenue, investment return, or a recommendation. Forecast evaluation is out-of-time; model performance should be read together with coverage, calibration, baselines, and null tests.</p>
+</section>
+<footer>Five commercial-technology domains: Computer Systems &amp; Engineering; AI &amp; Applied Mathematics; Quantitative Finance; FinTech &amp; Digital Finance; Computational Quantum &amp; Matter.</footer>
+</main>
+<script>
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function csv(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw Error(path+' '+r.status);const t=await r.text();const lines=t.trim().split(/\r?\n/);if(!lines.length||!lines[0])return[];const parse=x=>x.split(',').map(v=>v.replace(/^"(.*)"$/,'$1').replace(/""/g,'"'));const h=parse(lines[0]);return lines.slice(1).filter(Boolean).map(l=>{const v=parse(l),o={};h.forEach((k,i)=>o[k]=v[i]??'');return o})}
+function table(rows,cols){if(!rows.length)return '<div class="notice">No published rows.</div>';return '<div style="overflow:auto"><table><thead><tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(0,100).map(r=>'<tr>'+cols.map(c=>'<td>'+esc(r[c])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>'}
+(async()=>{try{
+const [p,w,b]=await Promise.all([csv('data/panel.csv'),csv('data/walk_forward.csv'),csv('data/baseline.csv')]);
+document.getElementById('updated').textContent='Published data loaded from the repository';
+document.getElementById('status').innerHTML='<strong>Published run available.</strong> Showing the committed CSV outputs; '+p.length+' panel rows.';
+const domains=[...new Set(p.map(x=>x.field).filter(Boolean))];
+document.getElementById('summary').innerHTML=[['Panel rows',p.length],['Domains',domains.length],['Evaluation rows',w.length],['Baseline rows',b.length]].map(x=>'<div class="card"><div class="value">'+esc(x[1])+'</div><div class="label">'+esc(x[0])+'</div></div>').join('');
+const keys=p.length?Object.keys(p[0]):[];const preferred=['field','year','signal','target'];const cols=preferred.filter(k=>keys.includes(k));if(!cols.length)cols.push(...keys.slice(0,5));
+document.getElementById('panel').innerHTML=table(p,cols);
+const wk=w.length?Object.keys(w[0]):[];const wc=wk.slice(0,6);document.getElementById('evaluation').innerHTML=table(w,wc);
+}catch(e){document.getElementById('status').innerHTML='<strong>No published monitoring run yet.</strong> Run the manual <code>monthly-monitor</code> workflow to fetch live data and commit <code>data/*.csv</code>. Tests alone do not generate the live result set.<br><br><span class="muted">'+esc(e.message)+'</span>';document.getElementById('updated').textContent='Waiting for the first published run';}})();
+</script>
+</body></html>
