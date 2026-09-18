@@ -1,88 +1,131 @@
 project:
   name: commercial-monitor
-  version: "0.1.0"
+  version: "0.2.0"
   start_year: 2015
   end_year: 2025
   horizon_years: 2
   random_seed: 20260918
 
+# The taxonomy is intentionally commercial-pathway oriented rather than a
+# mutually-exclusive academic classification. Domains are stable; subdomains,
+# artifact types and commercial pathways are orthogonal tags.
 taxonomy:
   domains:
-    AI_ML:
-      arxiv: [cs.AI, cs.LG, cs.CL, cs.CV, stat.ML, cs.NE]
-      openalex: ["machine learning", "artificial intelligence", "computer vision", "natural language processing"]
-      github: ["machine-learning", "artificial-intelligence", "computer-vision", "nlp"]
-      stackoverflow: ["machine-learning", "tensorflow", "pytorch", "nlp"]
-    AppliedMath:
-      arxiv: [math.OC, math.NA]
-      openalex: ["optimization", "numerical analysis"]
-      github: ["optimization", "numerical-methods"]
-      stackoverflow: ["scipy", "optimization"]
-    ComputerScience:
-      arxiv: [cs.DS, cs.DC]
-      openalex: ["data structures", "distributed computing"]
-      github: ["distributed-systems", "data-structures"]
-      stackoverflow: ["distributed", "algorithm"]
-    SoftwareEngineering:
-      arxiv: [cs.SE, cs.PL]
-      openalex: ["software engineering", "programming languages"]
-      github: ["software-engineering", "programming-language"]
-      stackoverflow: ["git", "programming-languages"]
-    SecurityCrypto:
-      arxiv: [cs.CR]
-      openalex: ["computer security", "cryptography"]
-      github: ["cryptography", "cybersecurity"]
-      stackoverflow: ["cryptography", "security"]
-    QuantFinance:
+    ComputerSystemsEngineering:
+      description: "Software systems, computer engineering, infrastructure, and applied algorithms"
+      subdomains:
+        - software-engineering
+        - applied-programming-languages
+        - algorithms-data-structures
+        - parallel-computing
+        - distributed-systems
+        - databases-storage
+        - compilers-runtimes
+        - cloud-infrastructure
+        - embedded-software
+        - security-cryptography
+      arxiv: [cs.DS, cs.DC, cs.SE, cs.PL, cs.CR, cs.ET]
+      openalex: ["computer science", "software engineering", "distributed computing", "computer security", "cryptography"]
+      github: ["software-engineering", "distributed-systems", "data-structures", "cryptography", "cybersecurity", "embedded-systems"]
+      stackoverflow: ["git", "programming-languages", "distributed", "algorithm", "security", "embedded"]
+
+    AIAppliedMathematics:
+      description: "AI/ML plus computationally relevant optimization, numerical methods, statistics, and scientific ML"
+      subdomains:
+        - optimization
+        - numerical-methods
+        - statistical-learning
+        - machine-learning
+        - deep-learning
+        - foundation-models
+        - llm
+        - multimodal
+        - inference
+        - training
+        - scaling
+        - ai-agents
+        - scientific-ml
+      arxiv: [cs.AI, cs.LG, cs.CL, cs.CV, stat.ML, cs.NE, math.OC, math.NA, physics.comp-ph]
+      openalex: ["machine learning", "artificial intelligence", "computer vision", "natural language processing", "optimization", "numerical analysis", "scientific computing"]
+      github: ["machine-learning", "artificial-intelligence", "computer-vision", "nlp", "optimization", "numerical-methods", "scientific-computing"]
+      stackoverflow: ["machine-learning", "tensorflow", "pytorch", "nlp", "scipy", "optimization"]
+
+    QuantitativeFinance:
+      description: "Mathematical/statistical finance and computational trading, risk, pricing, and forecasting"
+      subdomains:
+        - mathematical-finance
+        - stochastic-models
+        - numerical-finance
+        - monte-carlo
+        - econometrics
+        - quant-trading
+        - risk
+        - ml-for-finance
       arxiv: [q-fin.CP, q-fin.MF, q-fin.RM, q-fin.ST, q-fin.TR]
-      openalex: ["quantitative finance", "risk management", "financial econometrics"]
-      github: ["quantitative-finance", "algorithmic-trading"]
+      openalex: ["quantitative finance", "risk management", "financial econometrics", "financial mathematics"]
+      github: ["quantitative-finance", "algorithmic-trading", "risk-management"]
       stackoverflow: ["quantitative-finance", "algorithmic-trading"]
-    QuantumComputing:
-      arxiv: [quant-ph]
-      openalex: ["quantum computing", "quantum information"]
-      github: ["quantum-computing", "quantum-information"]
-      stackoverflow: ["qiskit", "quantum-computing"]
-    QuantumMaterialsElectronics:
-      arxiv: [cond-mat.mtrl-sci, cond-mat.mes-hall, cond-mat.str-el, cond-mat.supr-con]
-      openalex: ["quantum materials", "condensed matter physics", "superconductivity"]
-      github: ["quantum-materials", "superconductivity"]
-      stackoverflow: []
-    ComplexSystems:
-      arxiv: [cond-mat.stat-mech, cond-mat.dis-nn]
-      openalex: ["complex systems", "statistical mechanics"]
-      github: ["complex-systems", "network-science"]
-      stackoverflow: []
-    QuantumSimulation:
-      arxiv: [cond-mat.quant-gas]
-      openalex: ["ultracold atoms", "quantum simulation"]
-      github: ["quantum-simulation", "cold-atoms"]
-      stackoverflow: []
-    PhotonicsOptics:
-      arxiv: [physics.optics]
-      openalex: ["photonics", "optics"]
-      github: ["photonics", "optics"]
-      stackoverflow: []
-    ComputationalScienceEngineering:
-      arxiv: [physics.comp-ph, cs.CE]
-      openalex: ["computational physics", "computational engineering"]
-      github: ["computational-science", "computational-engineering"]
-      stackoverflow: ["numpy", "scipy"]
-    EmergingHardwareDevices:
-      arxiv: [cs.ET]
-      openalex: ["emerging technologies", "electronic devices"]
-      github: ["hardware", "embedded-systems"]
-      stackoverflow: ["embedded", "microcontroller"]
-    DigitalMarketsMechanismDesign:
+
+    FinTechDigitalFinance:
+      description: "Digital financial infrastructure, payments, banking, and crypto/blockchain applications"
+      subdomains:
+        - digital-banking
+        - payments
+        - open-banking
+        - financial-infrastructure
+        - lending
+        - wealthtech
+        - blockchain
+        - stablecoins
+        - crypto-infrastructure
+        - defi
+        - digital-markets-mechanism-design
       arxiv: [cs.GT]
-      openalex: ["mechanism design", "electronic commerce", "digital markets"]
-      github: ["mechanism-design", "e-commerce"]
-      stackoverflow: ["e-commerce"]
-    FinTech:
-      arxiv: []
-      openalex: ["financial technology", "payment system", "digital payments", "digital banking", "open banking", "financial infrastructure"]
-      github: ["fintech", "payments", "open-banking"]
-      stackoverflow: ["stripe", "paypal", "payments"]
+      openalex: ["financial technology", "payment system", "digital payments", "digital banking", "open banking", "financial infrastructure", "blockchain", "electronic commerce", "mechanism design"]
+      github: ["fintech", "payments", "open-banking", "blockchain", "stablecoin", "defi", "e-commerce"]
+      stackoverflow: ["stripe", "paypal", "payments", "blockchain"]
+
+    ComputationalQuantumMatter:
+      description: "Software, algorithms, simulation, and computational optimization for quantum systems and matter"
+      subdomains:
+        - quantum-algorithms
+        - quantum-simulation
+        - quantum-software
+        - quantum-compilation
+        - quantum-ml
+        - quantum-chemistry
+        - computational-materials
+        - tensor-networks
+        - scientific-simulation
+        - computational-optics
+      arxiv: [quant-ph, cond-mat.mtrl-sci, cond-mat.mes-hall, cond-mat.str-el, cond-mat.supr-con, cond-mat.stat-mech, cond-mat.dis-nn, cond-mat.quant-gas, physics.optics]
+      openalex: ["quantum computing", "quantum information", "quantum materials", "condensed matter physics", "superconductivity", "quantum simulation", "ultracold atoms", "photonics", "optics"]
+      github: ["quantum-computing", "quantum-information", "quantum-simulation", "quantum-materials", "superconductivity", "photonics", "optics"]
+      stackoverflow: ["qiskit", "quantum-computing"]
+
+# These are orthogonal to domain and may be attached to observations later.
+artifact_types:
+  - software
+  - model
+  - algorithm
+  - data
+  - hardware
+  - material
+  - manufacturing
+  - service
+
+commercial_pathways:
+  - open_source
+  - developer_tool
+  - api
+  - cloud
+  - enterprise_software
+  - financial_strategy
+  - financial_infrastructure
+  - patent
+  - hardware
+  - manufacturing
+  - licensing
 
 sources:
   openalex:
