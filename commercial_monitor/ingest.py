@@ -51,10 +51,10 @@ def fetch_stackoverflow(tag, start_year, end_year, cfg):
             "tagged": tag,
             "fromdate": int(pd.Timestamp(f"{year}-01-01", tz="UTC").timestamp()),
             "todate": int(pd.Timestamp(f"{year+1}-01-01", tz="UTC").timestamp()) - 1,
-            "pagesize": 1,
+            "filter": "total",
         }
         data = _get(cfg["sources"]["stackoverflow"]["base_url"], params)
-        rows.append({"year": year, "questions": len(data.get("items", []))})
+        rows.append({"year": year, "questions": int(data.get("total", 0))})
         time.sleep(0.2)
     return pd.DataFrame(rows)
 
