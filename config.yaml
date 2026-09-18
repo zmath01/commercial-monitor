@@ -1,0 +1,102 @@
+project:
+  name: commercial-monitor
+  version: "0.1.0"
+  start_year: 2015
+  end_year: 2025
+  horizon_years: 2
+  random_seed: 20260918
+
+taxonomy:
+  domains:
+    AI_ML:
+      arxiv: [cs.AI, cs.LG, cs.CL, cs.CV, stat.ML, cs.NE]
+      openalex: ["machine learning", "artificial intelligence", "computer vision", "natural language processing"]
+      github: ["machine-learning", "artificial-intelligence", "computer-vision", "nlp"]
+      stackoverflow: ["machine-learning", "tensorflow", "pytorch", "nlp"]
+    AppliedMath:
+      arxiv: [math.OC, math.NA]
+      openalex: ["optimization", "numerical analysis"]
+      github: ["optimization", "numerical-methods"]
+      stackoverflow: ["scipy", "optimization"]
+    ComputerScience:
+      arxiv: [cs.DS, cs.DC]
+      openalex: ["data structures", "distributed computing"]
+      github: ["distributed-systems", "data-structures"]
+      stackoverflow: ["distributed", "algorithm"]
+    SoftwareEngineering:
+      arxiv: [cs.SE, cs.PL]
+      openalex: ["software engineering", "programming languages"]
+      github: ["software-engineering", "programming-language"]
+      stackoverflow: ["git", "programming-languages"]
+    SecurityCrypto:
+      arxiv: [cs.CR]
+      openalex: ["computer security", "cryptography"]
+      github: ["cryptography", "cybersecurity"]
+      stackoverflow: ["cryptography", "security"]
+    QuantFinance:
+      arxiv: [q-fin.CP, q-fin.MF, q-fin.RM, q-fin.ST, q-fin.TR]
+      openalex: ["quantitative finance", "risk management", "financial econometrics"]
+      github: ["quantitative-finance", "algorithmic-trading"]
+      stackoverflow: ["quantitative-finance", "algorithmic-trading"]
+    QuantumComputing:
+      arxiv: [quant-ph]
+      openalex: ["quantum computing", "quantum information"]
+      github: ["quantum-computing", "quantum-information"]
+      stackoverflow: ["qiskit", "quantum-computing"]
+    QuantumMaterialsElectronics:
+      arxiv: [cond-mat.mtrl-sci, cond-mat.mes-hall, cond-mat.str-el, cond-mat.supr-con]
+      openalex: ["quantum materials", "condensed matter physics", "superconductivity"]
+      github: ["quantum-materials", "superconductivity"]
+      stackoverflow: []
+    ComplexSystems:
+      arxiv: [cond-mat.stat-mech, cond-mat.dis-nn]
+      openalex: ["complex systems", "statistical mechanics"]
+      github: ["complex-systems", "network-science"]
+      stackoverflow: []
+    QuantumSimulation:
+      arxiv: [cond-mat.quant-gas]
+      openalex: ["ultracold atoms", "quantum simulation"]
+      github: ["quantum-simulation", "cold-atoms"]
+      stackoverflow: []
+    PhotonicsOptics:
+      arxiv: [physics.optics]
+      openalex: ["photonics", "optics"]
+      github: ["photonics", "optics"]
+      stackoverflow: []
+    ComputationalScienceEngineering:
+      arxiv: [physics.comp-ph, cs.CE]
+      openalex: ["computational physics", "computational engineering"]
+      github: ["computational-science", "computational-engineering"]
+      stackoverflow: ["numpy", "scipy"]
+    EmergingHardwareDevices:
+      arxiv: [cs.ET]
+      openalex: ["emerging technologies", "electronic devices"]
+      github: ["hardware", "embedded-systems"]
+      stackoverflow: ["embedded", "microcontroller"]
+    DigitalMarketsMechanismDesign:
+      arxiv: [cs.GT]
+      openalex: ["mechanism design", "electronic commerce", "digital markets"]
+      github: ["mechanism-design", "e-commerce"]
+      stackoverflow: ["e-commerce"]
+    FinTech:
+      arxiv: []
+      openalex: ["financial technology", "payment system", "digital payments", "digital banking", "open banking", "financial infrastructure"]
+      github: ["fintech", "payments", "open-banking"]
+      stackoverflow: ["stripe", "paypal", "payments"]
+
+sources:
+  openalex:
+    base_url: "https://api.openalex.org/works"
+    mailto_env: OPENALEX_MAILTO
+  github:
+    base_url: "https://api.github.com/search/repositories"
+    token_env: GITHUB_TOKEN
+  stackoverflow:
+    base_url: "https://api.stackexchange.com/2.3/questions"
+  arxiv:
+    base_url: "https://export.arxiv.org/api/query"
+
+outputs:
+  data_dir: data
+  report_dir: reports
+  cache_dir: cache
