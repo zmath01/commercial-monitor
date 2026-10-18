@@ -3,12 +3,12 @@
   "config_sha256": "ded2350f244427b5dc05138c9c0816f4c3c33da06494b8c4e4cd8b66c64d811c",
   "implementation_sha256": "22ce62bb3db96ca480e985d292d2bc619fe029cab32b359fa0fa8e77892387e0",
   "runtime": {
-    "python": "3.14.4",
-    "numpy": "2.5.4",
+    "python": "3.11.17",
+    "numpy": "2.4.6",
     "pandas": "3.0.6",
-    "scipy": "1.18.1",
+    "scipy": "1.17.1",
     "scikit-learn": "1.9.1",
-    "networkx": "3.7",
+    "networkx": "3.6.1",
     "requests": "2.34.2",
     "PyYAML": "6.0.3"
   },
