@@ -81,6 +81,20 @@ Human-defined schemas, deterministic transformations, evaluation splits, and pub
 \section{Software Architecture and Reproducibility}
 The repository uses Python, pandas/numpy/scipy/scikit-learn, NetworkX, YAML, pytest, and GitHub Actions. The initial portable artifact is CSV; Parquet/DuckDB can be introduced when volume warrants them. A deterministic sample mode separates software correctness from network availability. The monthly workflow is manually runnable by the maintainer and records provenance before production use.
 \section{Limitations}
+The executable baseline now uses prefix-only normalization, endpoint burst
+states, and historical growth-correlation graphs. Its prespecified target is
+at least 20\% growth in GitHub topic-query counts over two calendar years,
+with zero-origin and unavailable future outcomes censored. Training labels must
+have outcome years strictly before the test year. Logistic feature scaling is
+fitted within training folds, and matched persistence, global-rate, graph-only,
+and research/adoption ablations accompany calibration and within-year label
+permutations. Descriptive uncertainty uses circular moving blocks of annual
+folds. None of these diagnostics establishes commercialization validity.
+The historical window is 2008--2025, providing 90 field-year units. Preserved
+source-query-year measurements overlap and are not additional independent
+forecasting units. Current API snapshots can revise historical counts and topic
+assignments; consequently these are retrospective snapshot backtests, not
+historical source-vintage simulations.
 Open bibliographic data have field and coverage biases. GitHub and Stack Overflow disproportionately represent software and English-speaking developer communities; they are poor universal measures for experimental physics or materials science. OpenAlex topic assignment is imperfect. API revisions and rate limits affect reproducibility. Patent, funding, labor, company, procurement, and revenue data have different licensing constraints and temporal delays.
 
 Association between research activity and downstream adoption does not establish causal commercialization impact. The framework is intended for transparent forecasting and evidence aggregation, not causal claims or investment advice.

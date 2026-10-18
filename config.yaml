@@ -1,10 +1,12 @@
 project:
   name: commercial-monitor
-  version: "0.2.0"
-  start_year: 2015
+  version: "0.3.0"
+  start_year: 2008
   end_year: 2025
   horizon_years: 2
   random_seed: 20260918
+  min_train_years: 5
+  target_growth_threshold: 0.20
 
 # The taxonomy is intentionally commercial-pathway oriented rather than a
 # mutually-exclusive academic classification. Domains are stable; subdomains,
@@ -131,6 +133,7 @@ sources:
   openalex:
     base_url: "https://api.openalex.org/works"
     mailto_env: OPENALEX_MAILTO
+    api_key_env: OPENALEX_API_KEY
   github:
     base_url: "https://api.github.com/search/repositories"
     token_env: GITHUB_TOKEN

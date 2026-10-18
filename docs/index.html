@@ -25,24 +25,46 @@ footer{margin-top:45px;color:var(--muted);font-size:13px}
 <section id="summary" class="grid"></section>
 <section><h2>Research / technology panel</h2><div id="panel"></div></section>
 <section><h2>Walk-forward evaluation</h2><div id="evaluation"></div></section>
+<section><h2>Model comparisons</h2><p class="muted">Mean scores and descriptive 95% moving-block bootstrap intervals. Lower Brier scores are better; pr_auc denotes average precision.</p><div id="comparisons"></div></section>
+<section><h2>Source coverage in the latest year</h2><p class="muted">Query matches overlap. Source observations are an audit trail, not independent forecasting samples.</p><div id="coverage"></div></section>
+<section><h2>Calibration and null diagnostics</h2><div id="calibration"></div><div id="nulls"></div></section>
+<p><a href="data/source_observations.csv">Source observations</a> · <a href="data/coverage.csv">Full coverage</a> · <a href="data/paired_brier.csv">Paired Brier differences</a> · <a href="data/predictions.csv">Out-of-time predictions</a> · <a href="data/manifest.json">Checksums</a></p>
 <section><h2>Interpretation</h2>
-<p>This dashboard reports the committed outputs of the reproducible pipeline. It does <strong>not</strong> treat a composite signal as revenue, investment return, or a recommendation. Forecast evaluation is out-of-time; model performance should be read together with coverage, calibration, baselines, and null tests.</p>
+<p>The target is at least 20% growth in GitHub topic-query counts over two years. Unknown future outcomes remain unlabeled. Features use historical prefixes and training uses only outcomes completed before the test year. These are <strong>retrospective snapshot backtests</strong>: current API counts and topic assignments can revise history. Five domains and correlated years limit inference. Model scores and permutation diagnostics do not establish commercialization, revenue, or investment returns.</p>
 </section>
 <footer>Five commercial-technology domains: Computer Systems &amp; Engineering; AI &amp; Applied Mathematics; Quantitative Finance; FinTech &amp; Digital Finance; Computational Quantum &amp; Matter.</footer>
 </main>
 <script>
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-async function csv(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw Error(path+' '+r.status);const t=await r.text();const lines=t.trim().split(/\r?\n/);if(!lines.length||!lines[0])return[];const parse=x=>x.split(',').map(v=>v.replace(/^"(.*)"$/,'$1').replace(/""/g,'"'));const h=parse(lines[0]);return lines.slice(1).filter(Boolean).map(l=>{const v=parse(l),o={};h.forEach((k,i)=>o[k]=v[i]??'');return o})}
-function table(rows,cols){if(!rows.length)return '<div class="notice">No published rows.</div>';return '<div style="overflow:auto"><table><thead><tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(0,100).map(r=>'<tr>'+cols.map(c=>'<td>'+esc(r[c])+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>'}
+function parseCSV(text){
+ const rows=[];let row=[],value='',quoted=false;
+ for(let i=0;i<text.length;i++){
+  const c=text[i];
+  if(c==='"'){if(quoted&&text[i+1]==='"'){value+='"';i++}else quoted=!quoted}
+  else if(c===','&&!quoted){row.push(value);value=''}
+  else if(c==='\n'&&!quoted){row.push(value.replace(/\r$/,''));rows.push(row);row=[];value=''}
+  else value+=c;
+ }
+ if(value||row.length){row.push(value.replace(/\r$/,''));rows.push(row)}
+ const header=rows.shift()||[];
+ return rows.filter(r=>r.some(Boolean)).map(r=>Object.fromEntries(header.map((h,i)=>[h,r[i]??''])));
+}
+async function csv(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw Error(path+' '+r.status);return parseCSV(await r.text())}
+async function json(path){const r=await fetch(path,{cache:'no-store'});if(!r.ok)throw Error(path+' '+r.status);return r.json()}
+function display(value){if(value===''||value==null)return '—';const n=Number(value);return Number.isFinite(n)&&!Number.isInteger(n)?n.toFixed(4):value}
+function table(rows,cols){if(!rows.length)return '<div class="notice">No eligible evaluation rows.</div>';return '<div style="overflow:auto"><table><thead><tr>'+cols.map(c=>'<th scope="col">'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+cols.map(c=>'<td>'+esc(display(r[c]))+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>'}
 (async()=>{try{
-const [p,w,b]=await Promise.all([csv('data/panel.csv'),csv('data/walk_forward.csv'),csv('data/baseline.csv')]);
-document.getElementById('updated').textContent='Published data loaded from the repository';
-document.getElementById('status').innerHTML='<strong>Published run available.</strong> Showing the committed CSV outputs; '+p.length+' panel rows.';
+const [p,w,run,manifest,summary,coverage,calibration,nulls]=await Promise.all([csv('data/panel.csv'),csv('data/walk_forward.csv'),json('data/run.json'),json('data/manifest.json'),csv('data/metric_summary.csv'),csv('data/coverage.csv'),csv('data/calibration.csv'),csv('data/null_summary.csv')]);
+document.getElementById('updated').textContent='Generated '+manifest.generated_at_utc+' · '+run.start_year+'–'+run.end_year;
+document.getElementById('status').innerHTML='<strong>'+esc(run.dataset_kind==='synthetic'?'Synthetic software fixture':'Live API snapshot')+'.</strong> '+esc(run.n_labeled_rows)+' labeled field-year units; '+esc(p.length-run.n_labeled_rows)+' unknown outcomes. '+esc(w.length)+' eligible test years. Historical source revisions remain a limitation.';
 const domains=[...new Set(p.map(x=>x.field).filter(Boolean))];
-document.getElementById('summary').innerHTML=[['Panel rows',p.length],['Domains',domains.length],['Evaluation rows',w.length],['Baseline rows',b.length]].map(x=>'<div class="card"><div class="value">'+esc(x[1])+'</div><div class="label">'+esc(x[0])+'</div></div>').join('');
-const keys=p.length?Object.keys(p[0]):[];const preferred=['field','year','signal','target'];const cols=preferred.filter(k=>keys.includes(k));if(!cols.length)cols.push(...keys.slice(0,5));
-document.getElementById('panel').innerHTML=table(p,cols);
-const wk=w.length?Object.keys(w[0]):[];const wc=wk.slice(0,6);document.getElementById('evaluation').innerHTML=table(w,wc);
+document.getElementById('summary').innerHTML=[['Field-year units',p.length],['Domains',domains.length],['Labeled units',run.n_labeled_rows],['Source-query-year observations',run.n_source_observations]].map(x=>'<div class="card"><div class="value">'+esc(x[1])+'</div><div class="label">'+esc(x[0])+'</div></div>').join('');
+document.getElementById('panel').innerHTML=table([...p].sort((a,b)=>Number(b.year)-Number(a.year)),['field','year','papers','repos','questions','csi','target']);
+document.getElementById('evaluation').innerHTML=table(w,['year','n_train','train_outcome_end','n_test','positive_rate','roc_auc','pr_auc','brier']);
+document.getElementById('comparisons').innerHTML=table(summary,['model','metric','n_folds','block_length','mean','lo','hi']);
+document.getElementById('coverage').innerHTML=table(coverage.filter(r=>Number(r.year)===run.end_year),['field','source','n_queries','n_nonzero_queries','query_match_count']);
+document.getElementById('calibration').innerHTML=table(calibration,['bin','n','mean_probability','observed_rate']);
+document.getElementById('nulls').innerHTML=table(nulls,['n_repeats','observed_mean_brier','null_mean_brier','null_brier_q025','null_brier_q975']);
 }catch(e){document.getElementById('status').innerHTML='<strong>No published monitoring run yet.</strong> Run the manual <code>monthly-monitor</code> workflow to fetch live data and commit <code>data/*.csv</code>. Tests alone do not generate the live result set.<br><br><span class="muted">'+esc(e.message)+'</span>';document.getElementById('updated').textContent='Waiting for the first published run';}})();
 </script>
 </body></html>

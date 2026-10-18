@@ -11,13 +11,9 @@ OUTCOMES = {
     "market_adoption":"future procurement/licensing/product/revenue proxy",
 }
 
-def future_relative_growth(panel, signal, horizon=2):
-    wide = panel.pivot_table(index="year",columns="field",values=signal,aggfunc="sum").sort_index()
-    delta = wide.shift(-horizon) - wide
-    threshold = delta.stack().median()
-    y = (delta > threshold).astype(int).stack().rename("target").reset_index()
-    y.columns = ["year","field","target"]
-    return y
+def future_relative_growth(panel, signal, horizon=2, threshold=0.20):
+    from .pipeline import build_target
+    return build_target(panel, signal, horizon, threshold)[["year", "field", "target", "outcome_year"]]
 
 def make_outcome_registry():
     return pd.DataFrame([{"outcome":k,"definition":v} for k,v in OUTCOMES.items()])

@@ -1,0 +1,39 @@
+{
+  "dataset_kind": "live_snapshot",
+  "config_sha256": "ded2350f244427b5dc05138c9c0816f4c3c33da06494b8c4e4cd8b66c64d811c",
+  "implementation_sha256": "22ce62bb3db96ca480e985d292d2bc619fe029cab32b359fa0fa8e77892387e0",
+  "runtime": {
+    "python": "3.14.4",
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "networkx": "3.7",
+    "requests": "2.34.2",
+    "PyYAML": "6.0.3"
+  },
+  "random_seed": 20260918,
+  "n_panel_rows": 90,
+  "n_source_observations": 1512,
+  "n_labeled_rows": 73,
+  "start_year": 2008,
+  "end_year": 2025,
+  "target": {
+    "signal": "repos",
+    "horizon_years": 2,
+    "growth_threshold": 0.2
+  },
+  "evaluation": {
+    "min_train_years": 5,
+    "label_availability": "outcome_year < test_year",
+    "null_repeats": 20,
+    "interval_method": "95% circular moving-block bootstrap of annual folds; block length ceil(sqrt(n_folds))"
+  },
+  "limitations": [
+    "Query matches overlap and are not independent entity counts",
+    "Historical counts are current API snapshots, not vintage data available in the historical year",
+    "Only five domains; correlated years and no independent commercialization outcome dataset",
+    "Block-bootstrap intervals are descriptive with few annual folds; no significance claim",
+    "OpenAlex free-text query matches are broad activity proxies, not validated domain membership"
+  ]
+}

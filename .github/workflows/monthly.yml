@@ -1,6 +1,8 @@
 name: monthly-monitor
 
 on:
+  schedule:
+    - cron: "0 4 1 * *"
   workflow_dispatch:
     inputs:
       mode:
@@ -15,9 +17,13 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: monitor-artifacts
+  cancel-in-progress: false
+
 jobs:
   refresh-data:
-    if: inputs.mode == 'refresh'
+    if: github.event_name == 'schedule' || inputs.mode == 'refresh'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,13 +31,15 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install -r requirements.txt
+      - run: pytest -q
       - name: Deterministic smoke test
         run: python -m commercial_monitor.cli --sample --out /tmp/sample-data
       - name: Live monitor
         env:
           OPENALEX_MAILTO: ${{ secrets.OPENALEX_MAILTO }}
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
-        run: python -m commercial_monitor.cli --live --out data
+        run: python -m commercial_monitor.cli --live --refresh-cache --out data
       - name: Commit refreshed data
         run: |
           git config user.name "github-actions[bot]"
@@ -40,9 +48,28 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: refresh monitoring data"
           git push
 
+  rebuild-data:
+    if: inputs.mode == 'rebuild'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: pytest -q
+      - run: python -m commercial_monitor.cli --observations data/source_observations.csv --out data
+      - name: Commit rebuilt research outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f data/
+          git diff --cached --quiet || git commit -m "chore: rebuild monitoring evaluation"
+          git push
+
   build-artifacts:
-    needs: refresh-data
-    if: always() && (needs.refresh-data.result == 'success' || inputs.mode == 'rebuild')
+    needs: [refresh-data, rebuild-data]
+    if: always() && (needs.refresh-data.result == 'success' || needs.rebuild-data.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

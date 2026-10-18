@@ -71,6 +71,37 @@ Investment relevance is a downstream interpretation layer, not a prediction targ
 - cached raw data and provenance;
 - human-defined taxonomy, targets and evaluation boundaries.
 
+## Data coverage and research status
+
+The original release contained **55 field-year rows** (five domains, 2015–2025).
+The configured window now covers **2008–2025**, giving **90 field-year rows**.
+Live runs also retain every configured **source-query-year observation**, rather
+than discarding the inputs after aggregation. These overlapping measurements are
+an audit trail, **not additional independent forecasting samples**. API totals
+are counts of query matches, not a sample of downloaded papers or repositories.
+
+The runnable target is **at least 20% growth in GitHub topic-query repository
+counts over two calendar years**, with a positive starting count. It measures an
+engineering activity proxy. It does not establish commercialization, revenue,
+patent translation, or investment returns. Final-horizon outcomes and zero-origin
+growth remain unknown; they are never silently labeled as negatives.
+
+Historical features use only prefixes through their observation year. Training
+uses only labels whose outcome year precedes the test year, with at least five
+training years. Scaling is fitted inside each training fold. All models share
+the same eligible test folds. Published diagnostics include field persistence,
+global-rate and graph-only baselines, research/adoption ablations, Brier score,
+ROC-AUC, average precision, calibration, paired Brier differences, and 20 seeded
+within-year permutation runs. Descriptive intervals use circular moving blocks
+of annual folds. These changes supersede the original full-window normalization
+and future-dependent target threshold.
+
+Current API snapshots can revise past counts and topic assignments. Consequently,
+these are **retrospective snapshot backtests**, not a reconstruction of the data
+actually available to historical forecasters. Five domains and correlated annual
+observations remain too little evidence for strong empirical claims. See
+[methodology](docs/METHODOLOGY.md) and [scientific status](SCIENTIFIC_STATUS.md).
+
 LLMs may assist semantic annotation/entity resolution/report drafting, but may not choose scientific conclusions, delete data, select the winning model, or establish significance.
 
 ## Software
@@ -83,7 +114,33 @@ Run the deterministic smoke test:
     pytest -q
     python -m commercial_monitor.cli --sample
 
-The monthly workflow is manual/scheduled. Run it only after reviewing taxonomy and code changes.
+Fetch a live snapshot (the initial run takes time because GitHub search is serial
+and rate limited):
+
+    export GITHUB_TOKEN=...  # Set privately in your shell; never commit it.
+    python -m commercial_monitor.cli --live --out data
+
+Successful responses are cached in `cache/`, so rerunning after an interruption
+resumes the snapshot. Use `--refresh-cache` to start a new snapshot. Optional
+`OPENALEX_API_KEY` and `OPENALEX_MAILTO` environment variables support OpenAlex
+access; credentials and contact addresses are excluded from cached parameters.
+Failed, malformed, or incomplete responses fail the run rather than supplying
+zero observations. Real zero counts are preserved.
+
+Rebuild features and research diagnostics without network access:
+
+    python -m commercial_monitor.cli --observations data/source_observations.csv --out data
+
+Published outputs include `panel.csv`, `source_observations.csv`, `coverage.csv`,
+model metrics, out-of-time predictions, calibration, null diagnostics, `run.json`,
+and a checksum manifest. Live runs retain compressed raw API responses in
+`raw_responses.jsonl.gz`. Synthetic smoke runs are labeled explicitly and cannot
+overwrite an output directory containing live observations.
+
+Tests run on pushes and pull requests. The monthly workflow refreshes data on the
+first day of each month and supports manual `refresh` and offline `rebuild` modes.
+It runs tests before publishing outputs and rebuilds the manuscript PDF. Review
+taxonomy and target changes before interpreting a new run.
 
 ## Project roles
 

@@ -1,5 +1,5 @@
 from __future__ import annotations
-from math import lgamma, log
+from math import fsum, lgamma, log
 import numpy as np
 import pandas as pd
 
@@ -67,10 +67,10 @@ def kleinberg_burst(values, s=2.0, gamma=1.0):
     return pd.Series(state, index=values.index, name="burst")
 
 def effective_conductance_2hop(graph, a, b):
-    total = 0.0
-    for v in set(graph.neighbors(a)).intersection(graph.neighbors(b)):
+    terms = []
+    for v in sorted(set(graph.neighbors(a)).intersection(graph.neighbors(b))):
         wa = float(graph[a][v].get("weight", 1.0))
         wb = float(graph[v][b].get("weight", 1.0))
         if wa + wb > 0:
-            total += wa * wb / (wa + wb)
-    return total
+            terms.append(wa * wb / (wa + wb))
+    return fsum(terms)

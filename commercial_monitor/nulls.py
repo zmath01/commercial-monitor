@@ -7,6 +7,6 @@ def permute_labels(frame, label="target", block="year", seed=20260918):
     rng = np.random.default_rng(seed)
     out = frame.copy()
     out[label] = out.groupby(block, group_keys=False)[label].transform(
-        lambda s: pd.Series(rng.permutation(s.to_numpy()), index=s.index)
+        lambda s: s.where(s.isna(), pd.Series(rng.permutation(s.dropna().to_numpy()), index=s.dropna().index).reindex(s.index))
     )
     return out

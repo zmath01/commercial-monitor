@@ -27,9 +27,7 @@ jobs:
         run: |
           mkdir -p _site/data
           cp docs/index.html _site/index.html
-          if compgen -G "data/*.csv" > /dev/null; then
-            cp data/*.csv _site/data/
-          fi
+          cp data/*.csv data/*.json _site/data/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
