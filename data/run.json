@@ -1,9 +1,9 @@
 {
   "dataset_kind": "live_snapshot",
-  "config_sha256": "ded2350f244427b5dc05138c9c0816f4c3c33da06494b8c4e4cd8b66c64d811c",
-  "implementation_sha256": "22ce62bb3db96ca480e985d292d2bc619fe029cab32b359fa0fa8e77892387e0",
+  "config_sha256": "0af95e97fc965c495e311f3d2957e07bd0815488fda60c82d18d55265c304267",
+  "implementation_sha256": "466b0c7bac6270c26e9c388b88410f08f12710b32c1ec4b11de298a26221c2e6",
   "runtime": {
-    "python": "3.11.17",
+    "python": "3.11.15",
     "numpy": "2.4.6",
     "pandas": "3.0.6",
     "scipy": "1.17.1",
@@ -18,6 +18,46 @@
   "n_labeled_rows": 73,
   "start_year": 2008,
   "end_year": 2025,
+  "taxonomy": {
+    "measurement_version": "1",
+    "domains": [
+      {
+        "id": "ComputerSystemsEngineering",
+        "label": "Computer Systems & Engineering",
+        "kind": "Technology family",
+        "description": "Software systems, computer engineering, infrastructure, and applied algorithms",
+        "boundary": "Classify by contribution to systems or infrastructure. A general computer science match alone is insufficient."
+      },
+      {
+        "id": "AIAppliedMathematics",
+        "label": "AI & Applied Mathematics",
+        "kind": "Methods and technology",
+        "description": "AI/ML plus computationally relevant optimization, numerical methods, statistics, and scientific ML",
+        "boundary": "Flag AI and numerical methods as separate subgroups. Require a method contribution to assign the domain when AI is simply applied in another area."
+      },
+      {
+        "id": "QuantitativeFinance",
+        "label": "Quantitative Finance",
+        "kind": "Application domain",
+        "description": "Mathematical/statistical finance and computational trading, risk, pricing, and forecasting",
+        "boundary": "Require a financial modeling, pricing, trading, or risk objective. Use a FinTech tag when the work also contributes to digital financial infrastructure."
+      },
+      {
+        "id": "FinTechDigitalFinance",
+        "label": "FinTech & Digital Finance",
+        "kind": "Application domain",
+        "description": "Digital financial infrastructure, payments, banking, and crypto/blockchain applications",
+        "boundary": "Require a financial service or infrastructure use case for general game theory, e-commerce, or blockchain matches."
+      },
+      {
+        "id": "ComputationalQuantumMatter",
+        "label": "Computational Quantum & Matter",
+        "kind": "Technology family",
+        "description": "Software, algorithms, simulation, and computational optimization for quantum systems and matter",
+        "boundary": "Track quantum computing, materials simulation, and computational optics separately when entity data are available. Require a computational contribution for broad physics or optics matches."
+      }
+    ]
+  },
   "target": {
     "signal": "repos",
     "horizon_years": 2,

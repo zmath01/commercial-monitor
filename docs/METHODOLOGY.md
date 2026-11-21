@@ -16,22 +16,57 @@ The primary taxonomy contains five stable commercial-technology domains:
 
 The taxonomy intentionally does **not** attempt to reproduce every academic discipline as a top-level class. In particular, ML, DL, foundation models, LLMs, inference, scaling, and AI agents overlap in abstraction level and therefore live under AI & Applied Mathematics as subdomains/tags. Scaling is treated as a cross-cutting training/inference property rather than a domain.
 
-ArXiv categories, OpenAlex concepts, GitHub topics, and Stack Overflow tags are source-specific mappings beneath these stable domains. Domain membership is not required to be mutually exclusive for future multi-label observations.
+arXiv categories, OpenAlex text queries, GitHub topics, and Stack Overflow tags
+are source-specific mappings. The current data use the latter three sources.
+Future entity-level observations can have multiple domain labels.
+
+### Taxonomy audit
+
+The five domains serve as a monitoring portfolio for computing, finance and
+computational physical science. They mix methods, technology families and
+application areas. Research fields for official R&D statistics can be represented
+on a separate axis using OECD FORD.
+[Frascati Manual, §2.42–2.45](https://www.oecd.org/content/dam/oecd/en/publications/reports/2015/10/frascati-manual-2015_g1g57dcb/9789264239012-en.pdf)
+
+| Monitoring domain | Entity-level assignment rule | Main measurement risk |
+| --- | --- | --- |
+| Computer Systems & Engineering | The contribution concerns software systems, infrastructure, algorithms for systems, or computer engineering. | OpenAlex `computer science` covers work outside systems. AI infrastructure crosses both views. |
+| AI & Applied Mathematics | Record separate AI/ML and computational mathematics tags. An application qualifies when it also contributes an AI or numerical method. | General `optimization` covers unrelated applications. The AI and numerical-methods trends can move differently. |
+| Quantitative Finance | The objective includes financial modeling, pricing, portfolio or trading decisions, or financial risk. | `risk management` reaches beyond finance. A production financial-risk system may also qualify for FinTech. |
+| FinTech & Digital Finance | The contribution concerns delivery or infrastructure for a digital financial service. | `mechanism design`, `electronic commerce`, `blockchain`, and broad arXiv `cs.GT` need financial context. |
+| Computational Quantum & Matter | Record separate quantum computing, computational materials, and computational optics tags based on the technical contribution. | Broad physics and optics mappings include experimental and theoretical work outside the computational scope. Repository matches mainly show software-visible activity. |
+
+For entity annotation, record the technical method and application context
+independently. A quantum derivative-pricing library can have quantum algorithms
+as the method, Quantitative Finance as the application and software as the
+artifact. Cross-tags preserve this information. Compare series within a source
+and query version, and use stable entity IDs for deduplication when aggregate
+population estimates are needed.
+
+The archived measurements use query version `1`. A future query revision should
+publish both old and new definitions for a common window. Audit a stratified
+sample of matches by source, domain and period with two independent reviewers,
+report precision and agreement before adjudication, and use a separate reference
+set containing nonmatches to estimate recall. Use entity IDs to estimate
+cross-query and cross-domain overlap. The count-only archive supports measuring
+query concentration. Precision, recall and overlap require entity-level data.
+[Stanford IR, precision and recall](https://nlp.stanford.edu/IR-book/html/htmledition/evaluation-of-unranked-retrieval-sets-1.html)
 
 ## Commercialization dimensions
 
-Domain and academic topic are separate from economic artifact and pathway:
-
-- artifact: software, model, algorithm, data, hardware, material, manufacturing, service;
-- pathway: open source, developer tool, API, cloud, enterprise software, financial strategy/infrastructure, patent, hardware, manufacturing, licensing.
-
-This makes software/hardware an observable economic dimension rather than an arbitrary taxonomy boundary. Patent data are not assumed to represent hardware only; software and ICT generate substantial patent activity as well.
+For entity-level data, the artifact is the product of the work, such as software,
+a model, hardware, a material, or a service. The pathway describes how it is made
+available or used, such as an API, enterprise deployment, licensing, or manufacturing.
+An evidence event records what was observed and when, such as a patent filing,
+procurement award, or license agreement. A patent event can concern many artifact
+types. The current count snapshot has no entity records to which these attributes
+can be applied.
 
 ## Layer separation
 
 Commercial Monitor distinguishes research emergence, technology/adoption, science-to-invention/IP translation, funding, labor, company formation, and market outcomes.
 
-The first runnable release has practical API adapters for OpenAlex, GitHub and Stack Overflow. Downstream outcome layers are explicit schemas/targets so they can be added without redefining the research layer.
+The first runnable release has practical API adapters for OpenAlex, GitHub and Stack Overflow. Downstream outcome layers are explicit schemas/targets so they can be added without redefining the research layer. Operationalize actual adoption with dated evidence of use, such as organization deployments. Commercial outcomes need an independent measure such as dated procurement or licensing. [OECD/Eurostat Oslo Manual, chapter 3](https://www.oecd.org/en/publications/2018/10/oslo-manual-2018_g1g9373b/full-report/component-9.html)
 
 ## Signals
 
@@ -90,13 +125,22 @@ scaling. Missing/infinite feature values are replaced with the fixed value zero,
 never a statistic estimated from test data. No hyperparameter or target threshold
 is selected on these folds. Comparators are the global training positive rate,
 the last observable field-specific label (falling back to the global rate), and
-logistic regression restricted to graph features. Research-only and adoption-only
-logistic models are prespecified ablations. Brier differences compare each model
-with the global rate on paired annual folds; negative differences favor the model.
+logistic regression restricted to graph features or GitHub features. Research-only
+and adoption-only logistic models are ablations. `paired_brier.csv` compares
+each model with the global rate on paired annual folds. `research_increment.csv`
+compares GitHub plus Stack Overflow features with the same features plus direct
+OpenAlex growth and standardized counts. The nested comparison excludes the
+composite and graph features because they mix data sources. Negative Brier
+differences favor the expanded model. Treat this comparison as exploratory on
+the existing snapshot and freeze it before testing on new vintages.
+[Rolling-origin evaluation](https://otexts.com/fpp3/tscv.html)
 
 Report ROC-AUC, average precision (the `pr_auc` column is average precision, not
 trapezoidal PR area), Brier score, five fixed calibration bins, and prediction
-counts. Means weight eligible annual folds equally. Confidence intervals are
+counts. Means weight eligible annual folds equally. Average precision equals
+one in an all-positive fold by definition, which gives no evidence about
+discrimination in that fold. Brier score assesses the probability forecasts
+and calibration bins diagnose their agreement with observed rates. Intervals are
 descriptive 95% circular moving-block bootstrap intervals with 2,000 resamples,
 seed 20260918, and block length ceil(sqrt(number of finite annual fold scores)).
 With few folds these intervals are unstable and cannot establish significance.
@@ -108,16 +152,34 @@ all temporal structure, commercialization validity, or the source-query taxonomy
 Null mean Brier scores and their empirical quantiles are descriptive diagnostics;
 no automatic hypothesis-test conclusion is made.
 
+### What the current snapshot supports
+
+The 2008–2025 panel has 90 domain-years and 73 labels. Evaluation uses 20
+predictions in four annual folds (2020–2023). In 2021 all five test outcomes
+are negative. In 2023 all five are positive. The full model assigned 19 of 20
+predictions to the 0.8–1 probability bin. Their mean probability is 93.2%
+and their observed rate is 42.1%.
+
+Adding OpenAlex reduces mean Brier from 0.500 to 0.486 on the same four
+folds. The paired change is −0.014 with a descriptive 95% interval of
+[−0.040, +0.012]. The direction varies by year, and the sample leaves
+predictive improvement unresolved. These data provide no independent evidence
+about commercialization outcomes.
+
 ## Coverage, provenance, and reproducibility
 
 The configured window contains 90 field-year units: five domains over 2008–2025.
 Each configured OpenAlex query, GitHub topic, and Stack Overflow tag is also stored
 separately by year with source, metric, retrieval timestamp, and response SHA-256.
 Coverage reports show query counts, nonzero-query counts, and match sums by field,
-source and year. Overlapping queries can count an entity more than once, including
+source and year. The dashboard shows each query's contribution and the share
+of the largest query within each domain-source-year. For example, `risk management`
+accounts for 78.5% of the 2025 Quantitative Finance OpenAlex query-match sum.
+Overlapping queries can count an entity more than once, including
 across domains. Aggregates are query-match sums, not deduplicated entity totals;
-source rows are not independent forecasting observations. Broad OpenAlex full-text
-searches have not been validated as precise domain-membership classifiers.
+source rows are not independent forecasting observations. The OpenAlex adapter
+filters by publication date and can return multiple work types. Its broad text
+search provides an unvalidated activity proxy. [OpenAlex search semantics](https://help.openalex.org/api/searching/)
 
 Adapters require expected response fields, check OpenAlex group totals, reject
 incomplete GitHub searches, honor Stack Exchange backoff, and retry transient
@@ -134,7 +196,7 @@ historically executable forecast, validate queries and domain assignment, acquir
 independent commercialization outcomes, and expand domain/time coverage before
 making strong empirical claims.
 
-API semantics: [GitHub repository search](https://docs.github.com/en/rest/search/search#search-repositories)
+The sources document [GitHub repository search](https://docs.github.com/en/rest/search/search#search-repositories)
 and [Stack Exchange filters](https://api.stackexchange.com/docs/filters).
 
 ## Agent boundary

@@ -4,7 +4,7 @@ year,field,target,probability
 2020,ComputerSystemsEngineering,1,0.9857469899050149
 2020,FinTechDigitalFinance,1,0.9904831223758862
 2020,QuantitativeFinance,1,0.9819747321385616
-2021,AIAppliedMathematics,0,0.909399678109449
+2021,AIAppliedMathematics,0,0.9093996781094488
 2021,ComputationalQuantumMatter,0,0.9617367315320946
 2021,ComputerSystemsEngineering,0,0.8402482445582196
 2021,FinTechDigitalFinance,0,0.8696782648598923
@@ -14,8 +14,8 @@ year,field,target,probability
 2022,ComputerSystemsEngineering,0,0.9041754921630824
 2022,FinTechDigitalFinance,0,0.8863944253611064
 2022,QuantitativeFinance,1,0.9740861104822829
-2023,AIAppliedMathematics,1,0.7457487059966572
-2023,ComputationalQuantumMatter,1,0.8559001053179809
-2023,ComputerSystemsEngineering,1,0.9104172277387178
-2023,FinTechDigitalFinance,1,0.948355882895994
-2023,QuantitativeFinance,1,0.8397478597766761
+2023,AIAppliedMathematics,1,0.7457487059966569
+2023,ComputationalQuantumMatter,1,0.8559001053179807
+2023,ComputerSystemsEngineering,1,0.910417227738718
+2023,FinTechDigitalFinance,1,0.9483558828959943
+2023,QuantitativeFinance,1,0.8397478597766762

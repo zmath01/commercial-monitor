@@ -12,9 +12,13 @@ project:
 # mutually-exclusive academic classification. Domains are stable; subdomains,
 # artifact types and commercial pathways are orthogonal tags.
 taxonomy:
+  measurement_version: "1"
   domains:
     ComputerSystemsEngineering:
+      label: "Computer Systems & Engineering"
+      kind: "Technology family"
       description: "Software systems, computer engineering, infrastructure, and applied algorithms"
+      boundary: "Classify by contribution to systems or infrastructure. A general computer science match alone is insufficient."
       subdomains:
         - software-engineering
         - applied-programming-languages
@@ -32,7 +36,10 @@ taxonomy:
       stackoverflow: ["git", "programming-languages", "distributed", "algorithm", "security", "embedded"]
 
     AIAppliedMathematics:
+      label: "AI & Applied Mathematics"
+      kind: "Methods and technology"
       description: "AI/ML plus computationally relevant optimization, numerical methods, statistics, and scientific ML"
+      boundary: "Flag AI and numerical methods as separate subgroups. Require a method contribution to assign the domain when AI is simply applied in another area."
       subdomains:
         - optimization
         - numerical-methods
@@ -53,7 +60,10 @@ taxonomy:
       stackoverflow: ["machine-learning", "tensorflow", "pytorch", "nlp", "scipy", "optimization"]
 
     QuantitativeFinance:
+      label: "Quantitative Finance"
+      kind: "Application domain"
       description: "Mathematical/statistical finance and computational trading, risk, pricing, and forecasting"
+      boundary: "Require a financial modeling, pricing, trading, or risk objective. Use a FinTech tag when the work also contributes to digital financial infrastructure."
       subdomains:
         - mathematical-finance
         - stochastic-models
@@ -69,7 +79,10 @@ taxonomy:
       stackoverflow: ["quantitative-finance", "algorithmic-trading"]
 
     FinTechDigitalFinance:
+      label: "FinTech & Digital Finance"
+      kind: "Application domain"
       description: "Digital financial infrastructure, payments, banking, and crypto/blockchain applications"
+      boundary: "Require a financial service or infrastructure use case for general game theory, e-commerce, or blockchain matches."
       subdomains:
         - digital-banking
         - payments
@@ -88,7 +101,10 @@ taxonomy:
       stackoverflow: ["stripe", "paypal", "payments", "blockchain"]
 
     ComputationalQuantumMatter:
+      label: "Computational Quantum & Matter"
+      kind: "Technology family"
       description: "Software, algorithms, simulation, and computational optimization for quantum systems and matter"
+      boundary: "Track quantum computing, materials simulation, and computational optics separately when entity data are available. Require a computational contribution for broad physics or optics matches."
       subdomains:
         - quantum-algorithms
         - quantum-simulation

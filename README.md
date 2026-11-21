@@ -2,6 +2,11 @@
 
 **Dashboard:** https://zmath01.github.io/commercial-monitor/
 
+The dashboard shows annual activity by source, query concentration, paired model
+comparisons, and calibration. Export a self-contained copy using the committed data:
+
+    python docs/export_dashboard.py /tmp/commercial-monitor.html
+
 Reproducible **research → technology → commercialization** monitoring and forecasting.
 
 The project is designed for commercially relevant technology signals rather than an exhaustive academic taxonomy. It separates research emergence, technology/adoption, IP translation, funding/labor/company outcomes, and market outcomes. It does not treat a composite signal as revenue, investment return, or a recommendation.
@@ -41,14 +46,17 @@ The primary taxonomy has **5 stable commercial-technology domains**:
 
 Academic source categories (including arXiv categories) are **secondary mappings**, not the primary taxonomy. The taxonomy is deliberately not mutually exclusive at the observation level: a technology may carry multiple subdomain tags.
 
+The five domains are monitoring views across methods, technology families and
+applications. The [taxonomy audit](docs/METHODOLOGY.md#taxonomy-audit) defines
+entity-level assignment rules and identifies broad queries. The current count
+series use the version 1 query sets in `config.yaml`.
+
 ## Technology and commercialization dimensions
 
-Domain is only one axis. Observations can additionally describe:
-
-- **artifact type:** software, model, algorithm, data, hardware, material, manufacturing, service
-- **commercial pathway:** open source, developer tool, API, cloud, enterprise software, financial strategy/infrastructure, patent, hardware, manufacturing, licensing
-
-This avoids forcing "software vs hardware" into the domain taxonomy. Hardware is not assumed to have lower commercial value; it simply has a different and often less GitHub-observable commercialization pathway.
+Entity-level work can record the artifact, such as software or hardware, the
+commercial pathway, such as licensing or manufacturing, and a dated evidence
+event, such as a patent filing or a procurement award. These axes complement
+the monitoring domain. The current API snapshot stores aggregate query counts.
 
 ## Forecasting target
 
@@ -90,9 +98,11 @@ Historical features use only prefixes through their observation year. Training
 uses only labels whose outcome year precedes the test year, with at least five
 training years. Scaling is fitted inside each training fold. All models share
 the same eligible test folds. Published diagnostics include field persistence,
-global-rate and graph-only baselines, research/adoption ablations, Brier score,
-ROC-AUC, average precision, calibration, paired Brier differences, and 20 seeded
-within-year permutation runs. Descriptive intervals use circular moving blocks
+global-rate, GitHub-only and graph-only baselines, research/adoption ablations,
+Brier score, ROC-AUC, average precision, calibration, paired Brier differences,
+and 20 seeded within-year permutation runs. `research_increment.csv` reports
+the paired Brier change from adding direct OpenAlex features to the same GitHub
+and Stack Overflow features. Descriptive intervals use circular moving blocks
 of annual folds. These changes supersede the original full-window normalization
 and future-dependent target threshold.
 

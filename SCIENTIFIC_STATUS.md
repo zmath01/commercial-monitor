@@ -25,6 +25,17 @@ two-year endpoints. Only four test years (2020–2023), totaling 20 predictions,
 meet the training-history and class-availability requirements. The larger
 input audit trail therefore does not resolve the small evaluation sample.
 
+The five monitoring domains retain their version 1 query sets. The taxonomy
+audit defines assignment rules and documents broad queries that need entity-level
+validation. The dashboard exposes each query's contribution to the published
+totals and visualizes the amount of calibration evidence in each bin.
+
+The exploratory nested evaluation gives mean Brier 0.500 for GitHub plus Stack
+Overflow features and 0.486 when direct OpenAlex features are added. The paired
+change is −0.014 and the descriptive 95% interval runs from −0.040 to +0.012.
+The sample leaves the incremental predictive value of OpenAlex unresolved.
+See the [methodology](docs/METHODOLOGY.md#what-the-current-snapshot-supports).
+
 Before treating any forecast as evidence, the maintainer should:
 
 1. freeze the taxonomy and source queries;

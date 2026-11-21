@@ -74,6 +74,13 @@ def main():
         "n_panel_rows": len(frame), "n_source_observations": 0 if observations is None else len(observations),
         "n_labeled_rows": int(frame.target.notna().sum()),
         "start_year": int(frame.year.min()), "end_year": int(frame.year.max()),
+        "taxonomy": {
+            "measurement_version": cfg["taxonomy"].get("measurement_version"),
+            "domains": [
+                {"id": field, **{key: spec[key] for key in ("label", "kind", "description", "boundary") if key in spec}}
+                for field, spec in cfg["taxonomy"]["domains"].items()
+            ],
+        },
         "target": {"signal": "repos", "horizon_years": cfg["project"]["horizon_years"], "growth_threshold": cfg["project"].get("target_growth_threshold", 0.20)},
         "evaluation": {"min_train_years": cfg["project"].get("min_train_years", 5), "label_availability": "outcome_year < test_year", "null_repeats": 20, "interval_method": "95% circular moving-block bootstrap of annual folds; block length ceil(sqrt(n_folds))"},
         "limitations": ["Query matches overlap and are not independent entity counts", "Historical counts are current API snapshots, not vintage data available in the historical year", "Only five domains; correlated years and no independent commercialization outcome dataset", "Block-bootstrap intervals are descriptive with few annual folds; no significance claim", "OpenAlex free-text query matches are broad activity proxies, not validated domain membership"],

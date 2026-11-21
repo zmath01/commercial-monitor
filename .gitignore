@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 cache/
 data/*.csv
+!data/research_increment.csv
 data/*.parquet
 *.pyc
 .tools/

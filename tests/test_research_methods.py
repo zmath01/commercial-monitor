@@ -85,9 +85,26 @@ def test_null_preserves_censored_rows_and_annual_positive_counts():
 
 def test_ablations_calibration_and_null_outputs():
     outputs = evaluate_models(observed_frame(), null_repeats=2)
-    assert set(outputs["model_comparison"].model) == {"full", "research_only", "adoption_only", "graph_only", "persistence", "global_rate"}
+    assert set(outputs["model_comparison"].model) == {
+        "full", "research_only", "adoption_only", "research_plus_adoption",
+        "github_only", "graph_only", "persistence", "global_rate",
+    }
     assert outputs["calibration"].n.sum() == len(outputs["predictions"])
     assert set(outputs["null_metrics"].repeat) == {0, 1}
+
+
+def test_research_increment_changes_only_direct_research_features():
+    frame = observed_frame()
+    adoption = ["repos_growth", "questions_growth", "repos_z", "questions_z", "repos_burst", "questions_burst"]
+    plus_research = adoption + ["papers_growth", "papers_z"]
+    without = fit_logistic_walk_forward(frame, features=adoption).set_index("year")
+    with_research = fit_logistic_walk_forward(frame, features=plus_research).set_index("year")
+    assert with_research.index.equals(without.index)
+    expected = (with_research.brier - without.brier).mean()
+    result = evaluate_models(frame, null_repeats=0)["research_increment"].iloc[0]
+    assert result.reference == "adoption_only"
+    assert result.n_folds == len(without)
+    assert result["mean"] == pytest.approx(expected)
 
 
 def test_short_panel_returns_readable_empty_evaluation():

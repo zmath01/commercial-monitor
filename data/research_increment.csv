@@ -1,0 +1,2 @@
+model,reference,n_folds,mean,lo,hi
+research_plus_adoption,adoption_only,4,-0.01393315108371835,-0.040150014550080604,0.012283712382643903

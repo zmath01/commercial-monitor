@@ -46,8 +46,12 @@ def evaluate_models(frame, min_train_years=5, null_repeats=20, seed=20260918):
     groups = {
         "research_only": [c for c in FEATURES if c.startswith("papers_")],
         "adoption_only": [c for c in FEATURES if c.startswith(("repos_", "questions_"))],
+        "github_only": [c for c in FEATURES if c.startswith("repos_")],
         "graph_only": [c for c in FEATURES if c.startswith("graph_")],
     }
+    # The nested models differ only in the direct OpenAlex features. The full
+    # model also contains cross-source composite and graph features.
+    groups["research_plus_adoption"] = groups["adoption_only"] + groups["research_only"]
     for name, columns in groups.items():
         metrics = fit_logistic_walk_forward(frame, min_train_years=min_train_years, features=columns)
         comparisons.append(metrics.assign(model=name))
@@ -78,6 +82,13 @@ def evaluate_models(frame, min_train_years=5, null_repeats=20, seed=20260918):
     for model, group in comparison.groupby("model"):
         joined = group[["year", "brier"]].merge(global_scores, on="year", suffixes=("", "_global"))
         paired.append({"model": model, "n_folds": len(joined), **bootstrap_mean(joined.brier - joined.brier_global, seed=seed)})
+    adoption = comparison[comparison.model == "adoption_only"][["year", "brier"]]
+    plus_research = comparison[comparison.model == "research_plus_adoption"][["year", "brier"]]
+    matched = plus_research.merge(adoption, on="year", suffixes=("", "_adoption"), validate="one_to_one")
+    research_increment = pd.DataFrame([{
+        "model": "research_plus_adoption", "reference": "adoption_only", "n_folds": len(matched),
+        **bootstrap_mean(matched.brier - matched.brier_adoption, seed=seed),
+    }])
     null_means = null_frame.groupby("repeat").brier.mean()
     null_summary = pd.DataFrame([{
         "n_repeats": len(null_means), "observed_mean_brier": full.brier.mean(),
@@ -90,4 +101,5 @@ def evaluate_models(frame, min_train_years=5, null_repeats=20, seed=20260918):
         "null_metrics": null_frame,
         "null_summary": null_summary,
         "paired_brier": pd.DataFrame(paired, columns=["model", "n_folds", "mean", "lo", "hi"]),
+        "research_increment": research_increment,
     }

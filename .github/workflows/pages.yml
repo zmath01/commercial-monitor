@@ -31,7 +31,7 @@ jobs:
       - name: Assemble dashboard
         run: |
           mkdir -p _site/data
-          cp docs/index.html _site/index.html
+          cp docs/index.html docs/dashboard.css docs/dashboard.js _site/
           cp data/*.csv data/*.json _site/data/
       - uses: actions/upload-pages-artifact@v3
         with:
