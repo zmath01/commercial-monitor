@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-11-21T07:46:50.058267+00:00",
+  "generated_at_utc": "2026-11-21T08:28:05.358237+00:00",
   "files": {
     "panel.csv": "5836f233592d9130e0ac3aea27e7d4c5641c04150b5ca107a27e58240aa90c17",
     "walk_forward.csv": "1bd1fd147f8b2eb63e228eaf00d1e81e6a4a8960a72b1f6939a1a9356cc5e36a",
@@ -14,7 +14,7 @@
     "research_increment.csv": "a816cdca5fcc911ff1a90f5630e8781aab767cc5e7572cfc4d6300526a4f322a",
     "source_observations.csv": "af859a86845efe570f566336674d51223be06e47fb1a02b283788c4a1862c509",
     "coverage.csv": "c1543c03a400074caa484974b5ca9e3233b3027d2c7f6d9fe08eeeab9c412336",
-    "run.json": "6e052e5fa24cfb4f42f3c071c189c33f7ddc36ee19b72e5691c17231704e31c6",
+    "run.json": "05458127478670aadf87114924183d415ce32ad71dc72ee553125e9e884cf2fd",
     "raw_responses.jsonl.gz": "10a614a53385a14b6b4e5c73581059d161aef704b7263a1f38ad1c8ced558a78"
   }
 }
